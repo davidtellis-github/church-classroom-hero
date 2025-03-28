@@ -23,12 +23,15 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationDialog } from "./NotificationDialog";
 
+// Filter students with absence rates higher than 25% (attendance below 75%)
+const filteredAbsentStudents = absentStudents.filter(student => student.absenceRate > 25);
+
 export function AbsentStudentsSection() {
   const { toast } = useToast();
   const [openNotificationDialog, setOpenNotificationDialog] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<typeof absentStudents[0] | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<AbsentStudent | null>(null);
   
-  const handleNotify = (student: typeof absentStudents[0]) => {
+  const handleNotify = (student: AbsentStudent) => {
     setSelectedStudent(student);
     setOpenNotificationDialog(true);
   };
@@ -36,7 +39,7 @@ export function AbsentStudentsSection() {
   const handleExportAbsentList = () => {
     // Create CSV content
     const header = ["ID", "Name", "Grade", "Class", "Absence Rate", "Last Attendance", "Parent Name", "Parent Phone", "Parent Email"];
-    const rows = absentStudents.map(student => [
+    const rows = filteredAbsentStudents.map(student => [
       student.id,
       student.name,
       student.grade,
@@ -76,7 +79,7 @@ export function AbsentStudentsSection() {
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Attention Required</AlertTitle>
         <AlertDescription className="flex items-center justify-between">
-          <span>{absentStudents.length} students have absence rates above 95% and require follow-up.</span>
+          <span>{filteredAbsentStudents.length} students have absence rates above 25% (attendance below 75%) and require follow-up.</span>
           <Button variant="destructive" size="sm" onClick={handleExportAbsentList}>
             Export List
           </Button>
@@ -87,9 +90,9 @@ export function AbsentStudentsSection() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>High Absence Students</CardTitle>
+              <CardTitle>Students with Low Attendance</CardTitle>
               <CardDescription>
-                Students missing more than 95% of classes
+                Students missing more than 25% of classes
               </CardDescription>
             </div>
           </div>
@@ -109,7 +112,7 @@ export function AbsentStudentsSection() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {absentStudents.map((student) => (
+                {filteredAbsentStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">
                       {student.name}
@@ -118,7 +121,12 @@ export function AbsentStudentsSection() {
                     <TableCell>{student.grade}</TableCell>
                     <TableCell>{student.class}</TableCell>
                     <TableCell>
-                      <Badge variant="destructive">{student.absenceRate}%</Badge>
+                      <Badge 
+                        variant={student.absenceRate > 50 ? "destructive" : "outline"}
+                        className={student.absenceRate > 50 ? "" : "bg-amber-100 text-amber-700 hover:bg-amber-100"}
+                      >
+                        {student.absenceRate}%
+                      </Badge>
                     </TableCell>
                     <TableCell>{student.lastAttendance}</TableCell>
                     <TableCell>
