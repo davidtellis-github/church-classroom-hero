@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { absentStudents } from "@/utils/absentStudentsMock";
+import { absentStudents, AbsentStudent } from "@/utils/absentStudentsMock";
 import { 
   Card, 
   CardContent, 
