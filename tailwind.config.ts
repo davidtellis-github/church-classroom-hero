@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				church: {
+					navy: '#1E3A8A',
+					gold: '#F59E0B',
+					green: '#34D399',
+					red: '#F87171',
+					slate: '#0F172A',
+					background: '#F8FAFC'
 				}
 			},
 			borderRadius: {
