@@ -9,16 +9,40 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Bell, LogOut, User } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export function DashboardHeader() {
-  const { user, logout } = useAuth();
+interface DashboardHeaderProps {
+  absenceNotificationsCount?: number;
+}
+
+export function DashboardHeader({ absenceNotificationsCount = 0 }: DashboardHeaderProps) {
+  const { user, logout, isAdmin } = useAuth();
 
   return (
     <header className="sticky top-0 z-10 w-full border-b bg-white">
       <div className="flex h-16 items-center px-4 sm:px-6">
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-2">
+            {isAdmin && absenceNotificationsCount > 0 && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative" 
+                asChild
+              >
+                <Link to="/admin">
+                  <Bell className="h-5 w-5" />
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0"
+                  >
+                    {absenceNotificationsCount}
+                  </Badge>
+                </Link>
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">

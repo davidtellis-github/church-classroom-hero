@@ -10,14 +10,20 @@ import {
   CheckSquare, 
   BarChart, 
   UserCog,
-  LucideIcon
+  LucideIcon,
+  Bell
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface SidebarLink {
   title: string;
   href: string;
   icon: LucideIcon;
   role: "admin" | "teacher" | "both";
+}
+
+interface DashboardSidebarProps {
+  absenceNotificationsCount?: number;
 }
 
 const links: SidebarLink[] = [
@@ -65,7 +71,7 @@ const links: SidebarLink[] = [
   },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ absenceNotificationsCount = 0 }: DashboardSidebarProps) {
   const { pathname } = useLocation();
   const { isAdmin, isTeacher } = useAuth();
 
@@ -91,13 +97,19 @@ export function DashboardSidebar() {
             variant="ghost"
             className={cn(
               "w-full justify-start text-white/70 hover:text-white",
-              pathname === link.href && "bg-white/10 text-white"
+              pathname === link.href && "bg-white/10 text-white",
+              link.href === "/admin" && isAdmin && absenceNotificationsCount > 0 && "relative"
             )}
             asChild
           >
             <Link to={link.href}>
               <link.icon className="mr-2 h-5 w-5" />
               {link.title}
+              {link.href === "/admin" && isAdmin && absenceNotificationsCount > 0 && (
+                <Badge variant="destructive" className="ml-auto">
+                  {absenceNotificationsCount}
+                </Badge>
+              )}
             </Link>
           </Button>
         ))}
