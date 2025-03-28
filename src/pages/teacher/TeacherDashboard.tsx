@@ -2,19 +2,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Users, CheckSquare, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { mockData } from "@/utils/mockData";
 
-// Mock data
+// Get the first two classes for the teacher view
+const teacherClasses = mockData.classes.slice(0, 2);
+
+// Calculate stats for teacher view
 const stats = [
   {
     title: "My Classes",
-    value: "2",
+    value: teacherClasses.length.toString(),
     icon: BookOpen,
     description: "Active classes",
     color: "bg-purple-100 text-purple-700",
   },
   {
     title: "Students",
-    value: "32",
+    value: (teacherClasses.length * 100).toString(),
     icon: Users,
     description: "Total students",
     color: "bg-blue-100 text-blue-700",
@@ -35,12 +39,39 @@ const stats = [
   },
 ];
 
-// Mock upcoming classes
-const upcomingClasses = [
-  { id: "C001", name: "Pre-K", date: "Sunday, June 4", time: "9:00 AM", room: "102", students: 15 },
-  { id: "C007", name: "Wednesday Pre-K", date: "Wednesday, June 7", time: "7:00 PM", room: "102", students: 12 },
-  { id: "C001", name: "Pre-K", date: "Sunday, June 11", time: "9:00 AM", room: "102", students: 15 },
-];
+// Generate upcoming classes based on the teacher's assigned classes
+const generateUpcomingClasses = () => {
+  const today = new Date();
+  
+  return [
+    { 
+      id: teacherClasses[0].id, 
+      name: teacherClasses[0].name, 
+      date: "Sunday, June 4", 
+      time: teacherClasses[0].time, 
+      room: teacherClasses[0].location.replace("Room ", ""), 
+      students: 100 
+    },
+    { 
+      id: teacherClasses[1].id, 
+      name: teacherClasses[1].name, 
+      date: "Wednesday, June 7", 
+      time: teacherClasses[1].time, 
+      room: teacherClasses[1].location.replace("Room ", ""), 
+      students: 100 
+    },
+    { 
+      id: teacherClasses[0].id, 
+      name: teacherClasses[0].name, 
+      date: "Sunday, June 11", 
+      time: teacherClasses[0].time, 
+      room: teacherClasses[0].location.replace("Room ", ""), 
+      students: 100 
+    },
+  ];
+};
+
+const upcomingClasses = generateUpcomingClasses();
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
@@ -111,9 +142,9 @@ const TeacherDashboard = () => {
           <CardContent>
             <div className="space-y-4">
               {[
-                { date: "May 28, 2023", class: "Pre-K", present: 14, absent: 1, total: 15 },
-                { date: "May 24, 2023", class: "Wednesday Pre-K", present: 10, absent: 2, total: 12 },
-                { date: "May 21, 2023", class: "Pre-K", present: 13, absent: 2, total: 15 },
+                { date: "May 28, 2023", class: teacherClasses[0].name, present: 92, absent: 8, total: 100 },
+                { date: "May 24, 2023", class: teacherClasses[1].name, present: 88, absent: 12, total: 100 },
+                { date: "May 21, 2023", class: teacherClasses[0].name, present: 94, absent: 6, total: 100 },
               ].map((record, index) => (
                 <div key={index} className="rounded-lg border p-3">
                   <div className="flex justify-between items-center mb-2">

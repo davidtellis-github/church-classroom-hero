@@ -3,33 +3,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Users, BookOpen, UserCheck, Calendar, AlertCircle, BellRing } from "lucide-react";
 import { AbsentStudentsSection } from "@/components/AbsentStudentsSection";
+import { mockData, getAverageAttendance, getClassAttendanceStats } from "@/utils/mockData";
 
-// Mock data
+// Generate stats based on mock data
 const stats = [
   {
     title: "Total Students",
-    value: "1,024",
+    value: mockData.students.length.toString(),
     icon: Users,
     description: "Active students in system",
     color: "bg-blue-100 text-blue-700",
   },
   {
     title: "Total Classes",
-    value: "36",
+    value: mockData.classes.length.toString(),
     icon: BookOpen,
     description: "Across all age groups",
     color: "bg-purple-100 text-purple-700",
   },
   {
     title: "Teachers",
-    value: "42",
+    value: mockData.classes.length.toString(),
     icon: UserCheck,
     description: "Active teachers",
     color: "bg-green-100 text-green-700",
   },
   {
     title: "Weekly Attendance",
-    value: "78%",
+    value: `${getAverageAttendance()}%`,
     icon: Calendar,
     description: "Average this month",
     color: "bg-amber-100 text-amber-700",
@@ -90,7 +91,9 @@ const AdminDashboard = () => {
                       {i % 2 === 0 ? "Attendance submitted" : "New student registered"}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {i % 2 === 0 ? "Teacher Sarah marked attendance for Class 3B" : "Admin John added a new student to Class 5A"}
+                      {i % 2 === 0 ? 
+                        `Teacher ${mockData.classes[i % 5].teacherName.split(' ')[0]} marked attendance for ${mockData.classes[i % 5].name}` : 
+                        `Admin John added a new student to ${mockData.classes[i % 5].name}`}
                     </p>
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -111,19 +114,19 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {["Toddlers", "Pre-K", "K-2nd Grade", "3rd-5th Grade", "Middle School"].map((className, i) => (
+              {getClassAttendanceStats().map((classData, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <div className="w-full">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium">{className}</p>
+                      <p className="text-sm font-medium">{classData.name}</p>
                       <p className="text-sm font-medium">
-                        {80 - i * 5}%
+                        {classData.attendance}%
                       </p>
                     </div>
                     <div className="mt-1 h-2 w-full rounded-full bg-primary/10">
                       <div
                         className="h-2 rounded-full bg-primary"
-                        style={{ width: `${80 - i * 5}%` }}
+                        style={{ width: `${classData.attendance}%` }}
                       />
                     </div>
                   </div>

@@ -22,27 +22,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Search, UserPlus, Upload, Download } from "lucide-react";
-
-// Mock data
-const mockStudents = Array.from({ length: 15 }, (_, i) => ({
-  id: `STU${1000 + i}`,
-  name: `Student ${i + 1}`,
-  age: Math.floor(Math.random() * 10) + 5,
-  grade: ["Pre-K", "Kindergarten", "1st Grade", "2nd Grade", "3rd Grade"][Math.floor(Math.random() * 5)],
-  parentName: `Parent ${i + 1}`,
-  phone: `(555) ${100 + i}-${1000 + i}`,
-  class: `Class ${String.fromCharCode(65 + Math.floor(i / 5))}`,
-}));
+import { mockData } from "@/utils/mockData";
 
 const StudentsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [students, setStudents] = useState(mockStudents);
+  const [students, setStudents] = useState(mockData.students);
   
   const filteredStudents = students.filter(
     student => 
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
       student.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.class.toLowerCase().includes(searchQuery.toLowerCase())
+      student.parentName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -66,7 +56,7 @@ const StudentsPage = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Students List</CardTitle>
+          <CardTitle>Students List ({filteredStudents.length} students)</CardTitle>
           <CardDescription>
             View and manage all students in the system
           </CardDescription>
@@ -153,13 +143,14 @@ const StudentsPage = () => {
                   <TableHead>Grade</TableHead>
                   <TableHead>Parent</TableHead>
                   <TableHead>Phone</TableHead>
-                  <TableHead>Class</TableHead>
+                  <TableHead>Attendance</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredStudents.length > 0 ? (
-                  filteredStudents.map((student) => (
+                  // Only show first 15 students for performance
+                  filteredStudents.slice(0, 15).map((student) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">{student.id}</TableCell>
                       <TableCell>{student.name}</TableCell>
@@ -167,7 +158,23 @@ const StudentsPage = () => {
                       <TableCell>{student.grade}</TableCell>
                       <TableCell>{student.parentName}</TableCell>
                       <TableCell>{student.phone}</TableCell>
-                      <TableCell>{student.class}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className={student.attendanceRate < 60 ? "text-red-500" : 
+                                           student.attendanceRate < 80 ? "text-amber-500" : "text-green-500"}>
+                            {student.attendanceRate}%
+                          </span>
+                          <div className="w-16 h-2 bg-gray-200 rounded-full">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                student.attendanceRate < 60 ? "bg-red-500" : 
+                                student.attendanceRate < 80 ? "bg-amber-500" : "bg-green-500"
+                              }`} 
+                              style={{ width: `${student.attendanceRate}%` }}
+                            />
+                          </div>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" className="h-8 w-8 p-0" title="Edit">
                           <span className="sr-only">Edit</span>
@@ -180,6 +187,15 @@ const StudentsPage = () => {
                   <TableRow>
                     <TableCell colSpan={8} className="h-24 text-center">
                       No students found.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {filteredStudents.length > 15 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-2">
+                      <span className="text-sm text-muted-foreground">
+                        Showing 15 of {filteredStudents.length} students. Refine your search to see more.
+                      </span>
                     </TableCell>
                   </TableRow>
                 )}
