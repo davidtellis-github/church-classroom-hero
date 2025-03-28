@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/drawer";
 import { Search, Upload, Download, Plus, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
@@ -83,7 +83,7 @@ const ClassesPage = () => {
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvPreview, setCsvPreview] = useState<any[]>([]);
   const { toast } = useToast();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   
   // Form for adding new class
   const form = useForm<z.infer<typeof formSchema>>({
