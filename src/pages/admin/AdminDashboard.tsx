@@ -1,6 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, BookOpen, UserCheck, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, BookOpen, UserCheck, Calendar, AlertCircle, BellRing } from "lucide-react";
+import { AbsentStudentsSection } from "@/components/AbsentStudentsSection";
 
 // Mock data
 const stats = [
@@ -64,6 +66,9 @@ const AdminDashboard = () => {
           </Card>
         ))}
       </div>
+
+      {/* Absent Students Alert Section */}
+      <AbsentStudentsSection />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">

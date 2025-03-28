@@ -3,6 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardSidebar } from "./DashboardSidebar";
+import { absentStudents } from "@/utils/absentStudentsMock";
 
 interface DashboardLayoutProps {
   requiredRole?: "admin" | "teacher";
@@ -34,11 +35,14 @@ export function DashboardLayout({ requiredRole }: DashboardLayoutProps) {
     return <Navigate to="/admin" />;
   }
 
+  // Pass the absent students count to the sidebar for admin notifications
+  const absenceNotificationsCount = isAdmin ? absentStudents.length : 0;
+
   return (
     <div className="flex min-h-screen flex-col">
-      <DashboardSidebar />
+      <DashboardSidebar absenceNotificationsCount={absenceNotificationsCount} />
       <div className="lg:pl-64">
-        <DashboardHeader />
+        <DashboardHeader absenceNotificationsCount={absenceNotificationsCount} />
         <main className="flex-1 p-4 sm:p-6 md:p-8">
           <Outlet />
         </main>
