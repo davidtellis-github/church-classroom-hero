@@ -122,8 +122,8 @@ export function AbsentStudentsSection() {
                     <TableCell>{student.class}</TableCell>
                     <TableCell>
                       <Badge 
-                        variant={student.absenceRate > 50 ? "destructive" : "outline"}
-                        className={student.absenceRate > 50 ? "" : "bg-amber-100 text-amber-700 hover:bg-amber-100"}
+                        variant={student.absenceRate >= 50 ? "destructive" : "outline"}
+                        className={student.absenceRate >= 50 ? "" : "bg-amber-100 text-amber-700 hover:bg-amber-100"}
                       >
                         {student.absenceRate}%
                       </Badge>
