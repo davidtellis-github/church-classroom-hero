@@ -12,6 +12,8 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Search, Users, BookOpen } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 // Mock data - teacher's assigned classes
 const myClasses = [
@@ -22,6 +24,8 @@ const myClasses = [
 const TeacherClassesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [classes, setClasses] = useState(myClasses);
+  const { toast } = useToast();
+  const navigate = useNavigate();
   
   const filteredClasses = classes.filter(
     cls => 
@@ -29,6 +33,25 @@ const TeacherClassesPage = () => {
       cls.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cls.day.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleViewRoster = (classId: string) => {
+    // In a real app, this would navigate to the roster page
+    // For now, just show a toast
+    toast({
+      title: "Roster View",
+      description: `Viewing roster for class ${classId}`,
+    });
+  };
+
+  const handleAttendance = (classId: string) => {
+    // In a real app, this would navigate to the attendance page
+    // For now, just navigate to the attendance page
+    navigate("/teacher/attendance");
+    toast({
+      title: "Attendance",
+      description: `Taking attendance for class ${classId}`,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -86,11 +109,20 @@ const TeacherClassesPage = () => {
                       <TableCell>{cls.day}</TableCell>
                       <TableCell>{cls.nextDate}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" className="mr-2" title="View Roster">
+                        <Button 
+                          variant="outline" 
+                          className="mr-2" 
+                          title="View Roster"
+                          onClick={() => handleViewRoster(cls.id)}
+                        >
                           <Users className="mr-2 h-4 w-4" />
                           Roster
                         </Button>
-                        <Button className="bg-church-navy hover:bg-church-navy/90" title="Mark Attendance">
+                        <Button 
+                          className="bg-church-navy hover:bg-church-navy/90" 
+                          title="Mark Attendance"
+                          onClick={() => handleAttendance(cls.id)}
+                        >
                           <BookOpen className="mr-2 h-4 w-4" />
                           Attendance
                         </Button>

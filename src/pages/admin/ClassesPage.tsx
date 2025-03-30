@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Search, Upload, Download, Plus, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, Upload, Download, Plus, AlertCircle, CheckCircle, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -39,6 +40,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ClassesActionButtons } from "@/components/classes/ClassesActionButtons";
+import { EditClassDialog } from "@/components/classes/EditClassDialog";
+
+// Class type definition
+interface ClassData {
+  id: string;
+  name: string;
+  location: string;
+  day: string;
+  time: string;
+  teacherName: string;
+  studentCount: number;
+}
 
 // Mock data
 const mockClasses = Array.from({ length: 12 }, (_, i) => ({
@@ -79,9 +93,10 @@ const csvSchema = z.object({
 
 const ClassesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [classes, setClasses] = useState(mockClasses);
+  const [classes, setClasses] = useState<ClassData[]>(mockClasses);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvPreview, setCsvPreview] = useState<any[]>([]);
+  const [editingClass, setEditingClass] = useState<ClassData | null>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
@@ -131,6 +146,54 @@ const ClassesPage = () => {
       description: `${values.name} has been added successfully.`,
     });
     form.reset();
+  };
+
+  // Export classes to CSV
+  const handleExport = () => {
+    // Generate CSV content
+    const headers = ["id", "name", "location", "day", "time", "teacherName", "studentCount"];
+    const csvContent = [
+      headers.join(","),
+      ...classes.map(cls => 
+        headers.map(header => {
+          const value = cls[header as keyof ClassData];
+          // Handle values with commas by quoting them
+          return typeof value === "string" && value.includes(",") 
+            ? `"${value}"`
+            : value;
+        }).join(",")
+      )
+    ].join("\n");
+    
+    // Create blob and download link
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "classes.csv");
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export Complete",
+      description: `Exported ${classes.length} classes to CSV.`
+    });
+  };
+
+  // Update class data
+  const handleUpdateClass = (updatedClass: ClassData) => {
+    setClasses(classes.map(cls => 
+      cls.id === updatedClass.id ? updatedClass : cls
+    ));
+    
+    toast({
+      title: "Class Updated",
+      description: `${updatedClass.name} has been updated successfully.`
+    });
+    
+    setEditingClass(null); // Close edit dialog
   };
 
   // Parse CSV content
@@ -414,59 +477,12 @@ Kindergarten Class A,Room 101,Sunday,9:00 AM,Teacher 1
             Manage church school classes and teacher assignments
           </p>
         </div>
-        <div className="flex space-x-2">
-          {isMobile ? (
-            <Drawer>
-              <BulkUploadTrigger>
-                <Button className="bg-church-navy hover:bg-church-navy/90">
-                  <Upload className="mr-2 h-4 w-4" /> Bulk Upload
-                </Button>
-              </BulkUploadTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>Bulk Upload Classes</DrawerTitle>
-                  <DrawerDescription>
-                    Upload multiple classes at once using a CSV file
-                  </DrawerDescription>
-                </DrawerHeader>
-                <div className="px-4 py-2">
-                  <BulkUploadContent />
-                </div>
-                <DrawerFooter>
-                  <DrawerClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DrawerClose>
-                </DrawerFooter>
-              </DrawerContent>
-            </Drawer>
-          ) : (
-            <Dialog>
-              <BulkUploadTrigger>
-                <Button className="bg-church-navy hover:bg-church-navy/90">
-                  <Upload className="mr-2 h-4 w-4" /> Bulk Upload
-                </Button>
-              </BulkUploadTrigger>
-              <DialogContent className="max-h-[90vh] overflow-y-auto max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Bulk Upload Classes</DialogTitle>
-                  <DialogDescription>
-                    Upload multiple classes at once using a CSV file
-                  </DialogDescription>
-                </DialogHeader>
-                <BulkUploadContent />
-                <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-          
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Export
-          </Button>
-        </div>
+        <ClassesActionButtons 
+          onExport={handleExport}
+          isMobile={isMobile}
+          BulkUploadTrigger={BulkUploadTrigger}
+          BulkUploadContent={BulkUploadContent}
+        />
       </div>
 
       <Card>
@@ -608,9 +624,14 @@ Kindergarten Class A,Room 101,Sunday,9:00 AM,Teacher 1
                       <TableCell>{classItem.teacherName}</TableCell>
                       <TableCell>{classItem.studentCount}</TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" className="h-8 w-8 p-0" title="Edit">
+                        <Button 
+                          variant="ghost" 
+                          className="h-8 w-8 p-0" 
+                          title="Edit"
+                          onClick={() => setEditingClass(classItem)}
+                        >
                           <span className="sr-only">Edit</span>
-                          <span className="h-4 w-4">✏️</span>
+                          <Pencil className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -627,6 +648,16 @@ Kindergarten Class A,Room 101,Sunday,9:00 AM,Teacher 1
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Class Dialog */}
+      {editingClass && (
+        <EditClassDialog
+          classData={editingClass}
+          open={!!editingClass}
+          onClose={() => setEditingClass(null)}
+          onUpdate={handleUpdateClass}
+        />
+      )}
     </div>
   );
 };
