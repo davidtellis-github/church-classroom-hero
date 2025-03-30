@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -97,6 +96,20 @@ const StudentsPage = () => {
     });
   };
 
+  const handleImportStudents = (newStudents: Student[]) => {
+    // Check for duplicate IDs
+    const existingIds = new Set(students.map(s => s.id));
+    const uniqueNewStudents = newStudents.filter(student => !existingIds.has(student.id));
+    
+    // Add new students to the state
+    setStudents(prev => [...prev, ...uniqueNewStudents]);
+    
+    toast({
+      title: "Students imported",
+      description: `${uniqueNewStudents.length} new students have been added to the system.`,
+    });
+  };
+
   const selectedDisplayedStudents = students.filter(
     student => selectedStudents.includes(student.id)
   );
@@ -110,7 +123,10 @@ const StudentsPage = () => {
             Manage student information and class assignments
           </p>
         </div>
-        <StudentActionButtons onExport={handleExport} />
+        <StudentActionButtons 
+          onExport={handleExport}
+          onStudentsImported={handleImportStudents}
+        />
       </div>
 
       <Card>
